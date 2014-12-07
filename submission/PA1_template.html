@@ -58,7 +58,104 @@ if (window.hljs && document.readyState && document.readyState === "complete") {
 </div>
 
 
-
+<p>I have something I want to show you today that I think you’ll enjoy. And it will benefit your understanding of quantified health.</p>
+<p>Let’s start by loading our activity dataset (you’ll need to set your working directory appropriately):</p>
+<pre class="r"><code>activity &lt;- read.csv(&quot;activity.csv&quot;, header=TRUE ,sep=&quot;,&quot;)
+rowCount &lt;- nrow(activity)</code></pre>
+<p>17568 rows of beautiful data!</p>
+<p>Let’s see what we’re dealing with:</p>
+<pre class="r"><code>summary(activity)</code></pre>
+<pre><code>##      steps                date          interval     
+##  Min.   :  0.00   2012-10-01:  288   Min.   :   0.0  
+##  1st Qu.:  0.00   2012-10-02:  288   1st Qu.: 588.8  
+##  Median :  0.00   2012-10-03:  288   Median :1177.5  
+##  Mean   : 37.38   2012-10-04:  288   Mean   :1177.5  
+##  3rd Qu.: 12.00   2012-10-05:  288   3rd Qu.:1766.2  
+##  Max.   :806.00   2012-10-06:  288   Max.   :2355.0  
+##  NA's   :2304     (Other)   :15840</code></pre>
+<p>So:</p>
+<ul>
+<li>steps is NA 13.11% of the time, and 62.69% of the populated values are 0<br /></li>
+<li>date summary just gives us a view of the data… it is an ISO formatted Date</li>
+<li>interval summary is also odd looking in the summary</li>
+</ul>
+<hr />
+<div id="steps" class="section level3">
+<h3>Steps</h3>
+<p>TBD :: We need to set an approach to impute steps… set to zero?</p>
+<hr />
+</div>
+<div id="date" class="section level3">
+<h3>Date</h3>
+<p>Let’s factorize date and look at that again:</p>
+<pre class="r"><code>activity$date &lt;- factor(activity$date)
+summary(activity$date)</code></pre>
+<pre><code>## 2012-10-01 2012-10-02 2012-10-03 2012-10-04 2012-10-05 2012-10-06 
+##        288        288        288        288        288        288 
+## 2012-10-07 2012-10-08 2012-10-09 2012-10-10 2012-10-11 2012-10-12 
+##        288        288        288        288        288        288 
+## 2012-10-13 2012-10-14 2012-10-15 2012-10-16 2012-10-17 2012-10-18 
+##        288        288        288        288        288        288 
+## 2012-10-19 2012-10-20 2012-10-21 2012-10-22 2012-10-23 2012-10-24 
+##        288        288        288        288        288        288 
+## 2012-10-25 2012-10-26 2012-10-27 2012-10-28 2012-10-29 2012-10-30 
+##        288        288        288        288        288        288 
+## 2012-10-31 2012-11-01 2012-11-02 2012-11-03 2012-11-04 2012-11-05 
+##        288        288        288        288        288        288 
+## 2012-11-06 2012-11-07 2012-11-08 2012-11-09 2012-11-10 2012-11-11 
+##        288        288        288        288        288        288 
+## 2012-11-12 2012-11-13 2012-11-14 2012-11-15 2012-11-16 2012-11-17 
+##        288        288        288        288        288        288 
+## 2012-11-18 2012-11-19 2012-11-20 2012-11-21 2012-11-22 2012-11-23 
+##        288        288        288        288        288        288 
+## 2012-11-24 2012-11-25 2012-11-26 2012-11-27 2012-11-28 2012-11-29 
+##        288        288        288        288        288        288 
+## 2012-11-30 
+##        288</code></pre>
+<p>There we go! Now we see the Date range from Oct 1st through Nov 30th.</p>
+<hr />
+</div>
+<div id="interval" class="section level3">
+<h3>Interval</h3>
+<p>Let’s look at interval now:</p>
+<pre class="r"><code>head(activity$interval)</code></pre>
+<pre><code>## [1]  0  5 10 15 20 25</code></pre>
+<pre class="r"><code>tail(activity$interval)</code></pre>
+<pre><code>## [1] 2330 2335 2340 2345 2350 2355</code></pre>
+<p>Odd, so we know it is an identifier, so it can be factored and we can look at unique values:</p>
+<pre class="r"><code>activity$interval &lt;- factor(activity$interval)
+levels(activity$interval)</code></pre>
+<pre><code>##   [1] &quot;0&quot;    &quot;5&quot;    &quot;10&quot;   &quot;15&quot;   &quot;20&quot;   &quot;25&quot;   &quot;30&quot;   &quot;35&quot;   &quot;40&quot;   &quot;45&quot;  
+##  [11] &quot;50&quot;   &quot;55&quot;   &quot;100&quot;  &quot;105&quot;  &quot;110&quot;  &quot;115&quot;  &quot;120&quot;  &quot;125&quot;  &quot;130&quot;  &quot;135&quot; 
+##  [21] &quot;140&quot;  &quot;145&quot;  &quot;150&quot;  &quot;155&quot;  &quot;200&quot;  &quot;205&quot;  &quot;210&quot;  &quot;215&quot;  &quot;220&quot;  &quot;225&quot; 
+##  [31] &quot;230&quot;  &quot;235&quot;  &quot;240&quot;  &quot;245&quot;  &quot;250&quot;  &quot;255&quot;  &quot;300&quot;  &quot;305&quot;  &quot;310&quot;  &quot;315&quot; 
+##  [41] &quot;320&quot;  &quot;325&quot;  &quot;330&quot;  &quot;335&quot;  &quot;340&quot;  &quot;345&quot;  &quot;350&quot;  &quot;355&quot;  &quot;400&quot;  &quot;405&quot; 
+##  [51] &quot;410&quot;  &quot;415&quot;  &quot;420&quot;  &quot;425&quot;  &quot;430&quot;  &quot;435&quot;  &quot;440&quot;  &quot;445&quot;  &quot;450&quot;  &quot;455&quot; 
+##  [61] &quot;500&quot;  &quot;505&quot;  &quot;510&quot;  &quot;515&quot;  &quot;520&quot;  &quot;525&quot;  &quot;530&quot;  &quot;535&quot;  &quot;540&quot;  &quot;545&quot; 
+##  [71] &quot;550&quot;  &quot;555&quot;  &quot;600&quot;  &quot;605&quot;  &quot;610&quot;  &quot;615&quot;  &quot;620&quot;  &quot;625&quot;  &quot;630&quot;  &quot;635&quot; 
+##  [81] &quot;640&quot;  &quot;645&quot;  &quot;650&quot;  &quot;655&quot;  &quot;700&quot;  &quot;705&quot;  &quot;710&quot;  &quot;715&quot;  &quot;720&quot;  &quot;725&quot; 
+##  [91] &quot;730&quot;  &quot;735&quot;  &quot;740&quot;  &quot;745&quot;  &quot;750&quot;  &quot;755&quot;  &quot;800&quot;  &quot;805&quot;  &quot;810&quot;  &quot;815&quot; 
+## [101] &quot;820&quot;  &quot;825&quot;  &quot;830&quot;  &quot;835&quot;  &quot;840&quot;  &quot;845&quot;  &quot;850&quot;  &quot;855&quot;  &quot;900&quot;  &quot;905&quot; 
+## [111] &quot;910&quot;  &quot;915&quot;  &quot;920&quot;  &quot;925&quot;  &quot;930&quot;  &quot;935&quot;  &quot;940&quot;  &quot;945&quot;  &quot;950&quot;  &quot;955&quot; 
+## [121] &quot;1000&quot; &quot;1005&quot; &quot;1010&quot; &quot;1015&quot; &quot;1020&quot; &quot;1025&quot; &quot;1030&quot; &quot;1035&quot; &quot;1040&quot; &quot;1045&quot;
+## [131] &quot;1050&quot; &quot;1055&quot; &quot;1100&quot; &quot;1105&quot; &quot;1110&quot; &quot;1115&quot; &quot;1120&quot; &quot;1125&quot; &quot;1130&quot; &quot;1135&quot;
+## [141] &quot;1140&quot; &quot;1145&quot; &quot;1150&quot; &quot;1155&quot; &quot;1200&quot; &quot;1205&quot; &quot;1210&quot; &quot;1215&quot; &quot;1220&quot; &quot;1225&quot;
+## [151] &quot;1230&quot; &quot;1235&quot; &quot;1240&quot; &quot;1245&quot; &quot;1250&quot; &quot;1255&quot; &quot;1300&quot; &quot;1305&quot; &quot;1310&quot; &quot;1315&quot;
+## [161] &quot;1320&quot; &quot;1325&quot; &quot;1330&quot; &quot;1335&quot; &quot;1340&quot; &quot;1345&quot; &quot;1350&quot; &quot;1355&quot; &quot;1400&quot; &quot;1405&quot;
+## [171] &quot;1410&quot; &quot;1415&quot; &quot;1420&quot; &quot;1425&quot; &quot;1430&quot; &quot;1435&quot; &quot;1440&quot; &quot;1445&quot; &quot;1450&quot; &quot;1455&quot;
+## [181] &quot;1500&quot; &quot;1505&quot; &quot;1510&quot; &quot;1515&quot; &quot;1520&quot; &quot;1525&quot; &quot;1530&quot; &quot;1535&quot; &quot;1540&quot; &quot;1545&quot;
+## [191] &quot;1550&quot; &quot;1555&quot; &quot;1600&quot; &quot;1605&quot; &quot;1610&quot; &quot;1615&quot; &quot;1620&quot; &quot;1625&quot; &quot;1630&quot; &quot;1635&quot;
+## [201] &quot;1640&quot; &quot;1645&quot; &quot;1650&quot; &quot;1655&quot; &quot;1700&quot; &quot;1705&quot; &quot;1710&quot; &quot;1715&quot; &quot;1720&quot; &quot;1725&quot;
+## [211] &quot;1730&quot; &quot;1735&quot; &quot;1740&quot; &quot;1745&quot; &quot;1750&quot; &quot;1755&quot; &quot;1800&quot; &quot;1805&quot; &quot;1810&quot; &quot;1815&quot;
+## [221] &quot;1820&quot; &quot;1825&quot; &quot;1830&quot; &quot;1835&quot; &quot;1840&quot; &quot;1845&quot; &quot;1850&quot; &quot;1855&quot; &quot;1900&quot; &quot;1905&quot;
+## [231] &quot;1910&quot; &quot;1915&quot; &quot;1920&quot; &quot;1925&quot; &quot;1930&quot; &quot;1935&quot; &quot;1940&quot; &quot;1945&quot; &quot;1950&quot; &quot;1955&quot;
+## [241] &quot;2000&quot; &quot;2005&quot; &quot;2010&quot; &quot;2015&quot; &quot;2020&quot; &quot;2025&quot; &quot;2030&quot; &quot;2035&quot; &quot;2040&quot; &quot;2045&quot;
+## [251] &quot;2050&quot; &quot;2055&quot; &quot;2100&quot; &quot;2105&quot; &quot;2110&quot; &quot;2115&quot; &quot;2120&quot; &quot;2125&quot; &quot;2130&quot; &quot;2135&quot;
+## [261] &quot;2140&quot; &quot;2145&quot; &quot;2150&quot; &quot;2155&quot; &quot;2200&quot; &quot;2205&quot; &quot;2210&quot; &quot;2215&quot; &quot;2220&quot; &quot;2225&quot;
+## [271] &quot;2230&quot; &quot;2235&quot; &quot;2240&quot; &quot;2245&quot; &quot;2250&quot; &quot;2255&quot; &quot;2300&quot; &quot;2305&quot; &quot;2310&quot; &quot;2315&quot;
+## [281] &quot;2320&quot; &quot;2325&quot; &quot;2330&quot; &quot;2335&quot; &quot;2340&quot; &quot;2345&quot; &quot;2350&quot; &quot;2355&quot;</code></pre>
+<p>There are 288 different values, which corresponds exactly to the number of 5-minute intervals in a day. Examining the levels closer, it looks like the last two digits range from zero to 55, and the first digits range from non-existant to 23. 24-hour clock has a similar range, so let’s assume these are clock times: 00:00 through 23:55.</p>
+</div>
 
 
 </div>

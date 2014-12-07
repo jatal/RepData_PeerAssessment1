@@ -5,6 +5,97 @@ date: "December 6, 2014"
 output: html_document
 ---
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(cache=TRUE)
+```
+
+I have something I want to show you today that I think you'll enjoy.  And it will benefit your understanding of quantified health.
+
+Let's start by loading our activity dataset (you'll need to set your working directory appropriately):
+
+```{r}
+activity <- read.csv("activity.csv", header=TRUE ,sep=",")
+rowCount <- nrow(activity)
+
+```
+
+`r rowCount` rows of beautiful data!
+
+Let's see what we're dealing with:
+
+```{r}
+summary(activity)
+
+```
+
+
+```{r echo=FALSE,}
+naStepsCount <- nrow( activity[is.na(activity$steps),] )
+pctNaStepsCount <- round( 100*naStepsCount/rowCount, 2 )
+
+zeroStepsCount <- nrow( activity[activity$steps == 0 & !is.na(activity$steps),] )
+pctZeroStepsCount <- round( 100*zeroStepsCount/rowCount, 2 )
+
+```
+
+So:  
+
+- steps is NA `r pctNaStepsCount`% of the time, and `r pctZeroStepsCount`% of the populated values are 0  
+- date summary just gives us a view of the data... it is an ISO formatted Date
+- interval summary is also odd looking in the summary
+
+---
+
+### Steps
+
+TBD :: We need to set an approach to impute steps... set to zero?
+
+
+
+---
+
+### Date
+
+Let's factorize date and look at that again:
+
+```{r}
+activity$date <- factor(activity$date)
+summary(activity$date)
+```
+
+
+There we go!  Now we see the Date range from Oct 1st through Nov 30th.
+
+---
+
+### Interval
+
+Let's look at interval now:
+
+```{r}
+head(activity$interval)
+```
+```{r}
+tail(activity$interval)
+```
+
+Odd, so we know it is an identifier, so it can be factored and we can look at unique values:
+
+```{r}
+activity$interval <- factor(activity$interval)
+levels(activity$interval)
+```
+
+```{r echo=FALSE}
+lenIntervalLevels <- length( levels(activity$interval))
+```
+
+There are `r lenIntervalLevels` different values, which corresponds exactly to the number of 5-minute intervals in a day. Examining the levels closer, it looks like the last two digits range from zero to 55, and the first digits range from non-existant to 23.  24-hour clock has a similar range, so let's assume these are clock times:  00:00 through 23:55.
+
+
+
+
+
 
 
 
