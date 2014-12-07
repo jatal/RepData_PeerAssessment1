@@ -48,7 +48,24 @@ So:
 
 ### Steps
 
-TBD :: We need to set an approach to impute steps... set to zero?
+Here's the first question we answer:
+
+#### What is mean total number of steps taken per day?
+
+(For this part of the assignment, you can ignore the missing values in the dataset.)
+
+1. Make a histogram of the total number of steps taken each day
+2. Calculate and report the mean and median total number of steps taken per day
+
+```{r echo=FALSE}
+stepsDaySum <- tapply(activity$steps, activity$date, FUN=sum)
+hist(stepsDaySum)
+isNotNa_StepsDaySum <- stepsDaySum[!is.na(stepsDaySum)]
+meanStepsPerDay <- as.integer( mean( isNotNa_StepsDaySum ) )
+medianStepsPerDay <- median( isNotNa_StepsDaySum )
+```
+
+The raw mean average number of steps per day is `r meanStepsPerDay`, and the raw median average number of steps per day is `r medianStepsPerDay`.  These are very close to the same value, but notice in the histogram that we have some positive skew going on, even chi-squared distribution-like.
 
 
 
