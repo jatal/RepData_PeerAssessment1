@@ -79,17 +79,32 @@ Which 5-minute interval, on average across all the days in the dataset, contains
 
 #### Answer:
 
-Assumptions:
-
-1. NA values should be removed (na.rm=TRUE) in the result
+1. NOTE: NA values are removed (na.rm=TRUE) when computing the mean
 
 ```{r}
 meanIntervalSteps <- tapply( activity$steps, activity$interval, FUN=mean, na.rm=TRUE)
 maxIntervalColumn <- sort(meanIntervalSteps,decreasing=TRUE)[1]
 maxIntervalName <- names(maxIntervalColumn)
+maxIntervalSteps <- maxIntervalColumn[[1]]
 raw24ClockTime <- as.integer(maxIntervalName)
 maxIntervalHour <- as.integer( raw24ClockTime / 100)
 maxIntervalMinute <- as.integer( raw24ClockTime %% 100)
+
+#...Show the Plot
+plot(meanIntervalSteps, type="l", 
+     main="Average Steps per 5-minute Interval", 
+     sub="(Average computed over October 1 through November 30, 2012; Missing data has been removed)",
+     xaxt="n", xlab="5 Minute intervals throughout Day", 
+     ylab="Number of Steps"
+     )
+#...X-axis labels on the hours
+hourIndexes <- seq(1,length(meanIntervalSteps),12)
+axis(1, at=hourIndexes, labels=names(meanIntervalSteps)[hourIndexes], col.axis="blue", las=2)
+#...Label the maximum point
+maxStepsColIdx <- which(names(meanIntervalSteps) == maxIntervalName)
+timeString <- paste(maxIntervalHour,":",maxIntervalMinute,sep="")
+text( maxStepsColIdx, maxIntervalSteps, paste(round(maxIntervalSteps,2),"Max average steps at",timeString), adj=c(-0.1,0.5), col="red" )
+points( maxStepsColIdx, maxIntervalSteps, col="red")
 ```
 
 The interval with the largest mean average number of steps across the entire dataset, independent of day, is `r maxIntervalName`.  This corresponds to `r maxIntervalHour`:`r maxIntervalMinute` on a 24-hour clock.
