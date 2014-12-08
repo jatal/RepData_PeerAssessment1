@@ -92,6 +92,11 @@ rowCount &lt;- nrow(activity)</code></pre>
 ##  3rd Qu.: 12.00   2012-10-05:  288   3rd Qu.:1766.2  
 ##  Max.   :806.00   2012-10-06:  288   Max.   :2355.0  
 ##  NA's   :2304     (Other)   :15840</code></pre>
+<pre class="r"><code>naStepsCount &lt;- nrow( activity[is.na(activity$steps),] )
+pctNaStepsCount &lt;- round( 100*naStepsCount/rowCount, 2 )
+
+zeroStepsCount &lt;- nrow( activity[activity$steps == 0 &amp; !is.na(activity$steps),] )
+pctZeroStepsCount &lt;- round( 100*zeroStepsCount/rowCount, 2 )</code></pre>
 <p>So:</p>
 <ul>
 <li>steps is NA 13.11% of the time, and 62.69% of the populated values are 0<br /></li>
@@ -394,6 +399,7 @@ levels(activity$interval)</code></pre>
 ## [261] &quot;2140&quot; &quot;2145&quot; &quot;2150&quot; &quot;2155&quot; &quot;2200&quot; &quot;2205&quot; &quot;2210&quot; &quot;2215&quot; &quot;2220&quot; &quot;2225&quot;
 ## [271] &quot;2230&quot; &quot;2235&quot; &quot;2240&quot; &quot;2245&quot; &quot;2250&quot; &quot;2255&quot; &quot;2300&quot; &quot;2305&quot; &quot;2310&quot; &quot;2315&quot;
 ## [281] &quot;2320&quot; &quot;2325&quot; &quot;2330&quot; &quot;2335&quot; &quot;2340&quot; &quot;2345&quot; &quot;2350&quot; &quot;2355&quot;</code></pre>
+<pre class="r"><code>lenIntervalLevels &lt;- length( levels(activity$interval))</code></pre>
 <p>There are 288 different values, which corresponds exactly to the number of 5-minute intervals in a day. Examining the levels closer, it looks like the last two digits range from zero to 55, and the first digits range from non-existant to 23. 24-hour clock has a similar range, so let’s assume these are clock times: 00:00 through 23:55.</p>
 </div>
 </div>

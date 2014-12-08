@@ -50,7 +50,7 @@ summary(activity)
 ```
 
 
-```{r echo=FALSE}
+```{r}
 naStepsCount <- nrow( activity[is.na(activity$steps),] )
 pctNaStepsCount <- round( 100*naStepsCount/rowCount, 2 )
 
@@ -343,7 +343,7 @@ activity$interval <- factor(activity$interval)
 levels(activity$interval)
 ```
 
-```{r echo=FALSE}
+```{r}
 lenIntervalLevels <- length( levels(activity$interval))
 ```
 
