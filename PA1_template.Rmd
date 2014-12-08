@@ -1,5 +1,5 @@
 ---
-title: "ReproducibleResearch_PeerReview01"
+title: "Reproducible Research :: Peer Review 01"
 author: "Craig Rowley"
 date: "December 6, 2014"
 output: html_document
@@ -9,7 +9,28 @@ output: html_document
 knitr::opts_chunk$set(cache=TRUE)
 ```
 
-I have something I want to show you today that I think you'll enjoy.  And it will benefit your understanding of quantified health.
+## Assignment
+
+This assignment will be described in multiple parts. You will need to write a report that answers the questions detailed below. Ultimately, you will need to complete the entire assignment in a single R markdown document that can be processed by knitr and be transformed into an HTML file.
+
+Throughout your report make sure you always include the code that you used to generate the output you present. When writing code chunks in the R markdown document, always use echo = TRUE so that someone else will be able to read the code. This assignment will be evaluated via peer assessment so it is essential that your peer evaluators be able to review the code for your analysis.
+
+For the plotting aspects of this assignment, feel free to use any plotting system in R (i.e., base, lattice, ggplot2)
+
+Fork/clone the GitHub repository created for this assignment. You will submit this assignment by pushing your completed files into your forked repository on GitHub. The assignment submission will consist of the URL to your GitHub repository and the SHA-1 commit ID for your repository state.
+
+NOTE: The GitHub repository also contains the dataset for the assignment so you do not have to download the data separately.
+
+## Loading and preprocessing the data
+
+### Question
+
+Show any code that is needed to
+
+- Load the data (i.e. read.csv())
+- Process/transform the data (if necessary) into a format suitable for your analysis
+
+### Answer
 
 Let's start by loading our activity dataset (you'll need to set your working directory appropriately):
 
@@ -29,7 +50,7 @@ summary(activity)
 ```
 
 
-```{r echo=FALSE,}
+```{r echo=FALSE}
 naStepsCount <- nrow( activity[is.na(activity$steps),] )
 pctNaStepsCount <- round( 100*naStepsCount/rowCount, 2 )
 
@@ -46,20 +67,20 @@ So:
 
 ---
 
-### Steps
+## What is the mean total number of steps taken per day?
 
-Here's the first question we answer:
-
-#### What is mean total number of steps taken per day?
+### Question
 
 (For this part of the assignment, you can ignore the missing values in the dataset.)
 
 1. Make a histogram of the total number of steps taken each day
 2. Calculate and report the mean and median total number of steps taken per day
 
-```{r echo=FALSE}
+### Answer
+
+```{r}
 stepsDaySum <- tapply(activity$steps, activity$date, FUN=sum)
-histStepsDaySum <- hist(stepsDaySum)
+histStepsDaySum <- hist(stepsDaySum, main="Histogram of Total Steps per Day")
 isNotNa_StepsDaySum <- stepsDaySum[!is.na(stepsDaySum)]
 meanStepsPerDay <- as.integer( mean( isNotNa_StepsDaySum ) )
 medianStepsPerDay <- median( isNotNa_StepsDaySum )
@@ -67,15 +88,17 @@ medianStepsPerDay <- median( isNotNa_StepsDaySum )
 
 The raw mean average number of steps per day is `r meanStepsPerDay`, and the raw median average number of steps per day is `r medianStepsPerDay`.  These are very close to the same value, but notice in the histogram that we have some positive skew going on, with more mass in the left-tail, indicating a bias towards "less" steps.  This makes sense because it is more difficult to attain the higher step count than the lower step count.
 
+---
 
+## What is the average daily activity pattern?
 
-### What is the average daily activity pattern?
+### Question
 
 Make a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
 
 Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
 
-#### Answer:
+### Answer
 
 1. NOTE: NA values are removed (na.rm=TRUE) when computing the mean
 
@@ -89,7 +112,8 @@ maxIntervalHour <- as.integer( raw24ClockTime / 100)
 maxIntervalMinute <- as.integer( raw24ClockTime %% 100)
 
 #...Show the Plot
-plot(meanIntervalSteps, type="l", 
+plot(meanIntervalSteps, 
+     type="l", 
      main="Average Steps per 5-minute Interval", 
      sub="(Average computed over October 1 through November 30, 2012; Missing data removed)",
      xaxt="n", xlab="5 Minute intervals throughout Day", 
@@ -107,43 +131,60 @@ points( maxStepsColIdx, maxIntervalSteps, col="red")
 
 The interval with the largest mean average number of steps across the entire dataset, independent of day, is `r maxIntervalName`.  This corresponds to `r maxIntervalHour`:`r maxIntervalMinute` on a 24-hour clock.
 
+---
 
-
-
-
-
-### Imputing missing values
-
-#### Number of missing values
+## Imputing missing values
 
 Note that there are a number of days/intervals where there are missing values (coded as NA). The presence of missing days may introduce bias into some calculations or summaries of the data.
 
+### Part A
+
+#### Question
+
 Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with NAs)
+
+#### Answer
 
 ```{r}
 naStepsCount <- nrow( activity[is.na(activity$steps),] )
 ```
 
-Answer:
 Activity dataset has `r naStepsCount` rows with missing step counts.
 
+Missing data is defined as any "NA" values in the steps column.  Note that we do not consider a Zero-value (0) to be missing data since a value of Zero was logged for that interval.
 
-#### Imputation impact research
+### Part B
+
+#### Question
 
 Devise a strategy for filling in all of the missing values in the dataset. The strategy does not need to be sophisticated. For example, you could use the mean/median for that day, or the mean for that 5-minute interval, etc.
 
 Create a new dataset that is equal to the original dataset but with the missing data filled in.
 
-Make a histogram of the total number of steps taken each day and Calculate and report the mean and median total number of steps taken per day. Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?
+#### Answer
 
 ```{r}
 #...create data.frame with average steps per interval across whole dataset
+#   NOTE: the cast to character before numeric is necessary to prevent R from converting our step vector to a factor
 meanStepsByInterval <- data.frame( interval=names(meanIntervalSteps), avg_steps=as.numeric(as.character(meanIntervalSteps)) )
 #...Inner Join the interval steps as a new column in th activity dataset
 activity <- merge(activity, meanStepsByInterval, by="interval", all.x=TRUE, all.y=FALSE)
 #...Create a new column that coalesces the steps with avg_steps per interval (this is our imputation)
 activity$imputed_steps <- ifelse( is.na(activity$steps), activity$avg_steps, activity$steps )
+```
 
+Decision: Use the mean average steps per 5-minute interval to impute missing data.  
+
+
+### Part C
+
+#### Question
+
+Make a histogram of the total number of steps taken each day and Calculate and report the mean and median total number of steps taken per day. Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?
+
+#### Answer
+
+```{r}
 #...Compute sum of steps per day
 imputedStepsPerDay <- tapply( activity$imputed_steps, activity$date, FUN=sum, na.rm=TRUE)
 stepsPerDay <- tapply( activity$steps, activity$date, FUN=sum, na.rm=TRUE)
@@ -163,9 +204,6 @@ maxCol <- which(histImputedStepsPerDay$counts == max(histImputedStepsPerDay$coun
 
 ```
 
-
-##### Answer:
-
 When using the average steps per interval to impute any NA-value steps, the user took `r as.integer(meanImputedStepsPerDay)` mean average steps and `r as.integer(medianImputedStepsPerDay)` median average steps.
 
 Without imputation, the user took `r as.integer(meanStepsPerDay)` mean average steps and `r as.integer(medianStepsPerDay)` median average steps.
@@ -174,26 +212,106 @@ Imputation increased the mean average steps per day by `r as.integer(meanImputed
 
 ---
 
-# TO HERE
-
-#### Weekday versus Weekend research
-
-Are there differences in activity patterns between weekdays and weekends?
+## Are there differences in activity patterns between weekdays and weekends?
 
 For this part the weekdays() function may be of some help here. Use the dataset with the filled-in missing values for this part.
 
+### Part A
+
+#### Question
+
 Create a new factor variable in the dataset with two levels – “weekday” and “weekend” indicating whether a given date is a weekday or weekend day.
+
+#### Answer
+
+```{r}
+#...Convert date column to a Date class
+activity$date <- as.Date(activity$date)
+#...Get the weekday name for the Date
+activity$weekday_name <- weekdays(activity$date)
+#...Set a flag if the date is a weekend (to enable easy filtering)
+weekend_days = c("Saturday","Sunday")
+activity$flag_weekend <- factor( ifelse( is.element(activity$weekday_name,weekend_days), 1, 0 ) )
+```
+
+### Part B
+
+#### Question
 
 Make a panel plot containing a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis). See the README file in the GitHub repository to see an example of what this plot should look like using simulated data.
 
+#### Answer
+
+```{r}
+weekdayActivity <- activity[activity$flag_weekend == 0,]
+weekendActivity <- activity[activity$flag_weekend == 1,]
+weekdayStepsByInterval <- tapply(weekdayActivity$imputed_steps, weekdayActivity$interval, FUN=mean)
+weekendStepsByInterval <- tapply(weekendActivity$imputed_steps, weekendActivity$interval, FUN=mean)
+#...Plot graphs in same column, and shrink the text so it does not hit the time-seriese line
+par(mfrow=c(2,1), cex=0.8)
+plot(weekdayStepsByInterval,
+     type="l", 
+     main="Average Weekday Steps by Interval", 
+     xaxt="n", 
+     xlab="5 Minute intervals throughout Day", 
+     ylab="Number of Steps"
+     )
+#...X-axis labels on the hours
+maxIntervalColumn <- sort(weekdayStepsByInterval,decreasing=TRUE)[1]
+maxIntervalName <- names(maxIntervalColumn)
+maxWeekdayIntervalSteps <- maxIntervalColumn[[1]]
+raw24ClockTime <- as.integer(maxIntervalName)
+maxIntervalHour <- as.integer( raw24ClockTime / 100)
+maxIntervalMinute <- as.integer( raw24ClockTime %% 100)
+hourIndexes <- seq(1,length(weekdayStepsByInterval),12)
+axis(1, at=hourIndexes, labels=names(weekdayStepsByInterval)[hourIndexes], col.axis="blue", las=2)
+#...Label the maximum point
+maxStepsColIdx <- which(names(weekdayStepsByInterval) == maxIntervalName)
+timeString <- paste(maxIntervalHour,":",maxIntervalMinute,sep="")
+text( maxStepsColIdx, maxWeekdayIntervalSteps, paste(round(maxWeekdayIntervalSteps,2),"Max average steps at",timeString), adj=c(-0.1,1.0), col="red" )
+points( maxStepsColIdx, maxWeekdayIntervalSteps, col="red")
 
 
+plot(weekendStepsByInterval, 
+     type="l", 
+     main="Average Weekend Steps by Interval",
+     sub="(Average computed over October 1 through November 30, 2012; Missing data imputed)",
+     xaxt="n", 
+     xlab="5 Minute intervals throughout Day", 
+     ylab="Number of Steps"
+     )
+#...X-axis labels on the hours
+maxIntervalColumn <- sort(weekendStepsByInterval,decreasing=TRUE)[1]
+maxIntervalName <- names(maxIntervalColumn)
+maxWeekendIntervalSteps <- maxIntervalColumn[[1]]
+raw24ClockTime <- as.integer(maxIntervalName)
+maxIntervalHour <- as.integer( raw24ClockTime / 100)
+maxIntervalMinute <- as.integer( raw24ClockTime %% 100)
+hourIndexes <- seq(1,length(weekendStepsByInterval),12)
+axis(1, at=hourIndexes, labels=names(weekendStepsByInterval)[hourIndexes], col.axis="blue", las=2)
+#...Label the maximum point
+maxStepsColIdx <- which(names(weekendStepsByInterval) == maxIntervalName)
+timeString <- paste(maxIntervalHour,":",maxIntervalMinute,sep="")
+text( maxStepsColIdx, maxWeekendIntervalSteps, paste(round(maxWeekendIntervalSteps,2),"Max average steps at",timeString), adj=c(-0.1,1.0), col="red" )
+points( maxStepsColIdx, maxWeekendIntervalSteps, col="red")
 
+```
+
+Weekdays and Weekends differ greatly:
+
+- Weekdays typically have a single large peak at 8:35am of `r round(maxWeekdayIntervalSteps,2)` steps, preceded by stable activity starting at about 5:45am.  The rest of the day is characterized by low-activity periods (<50 steps) and step spikes corresponding to typical meal times and possibly stopping work.
+- Weekends also start in the 5 o'clock hour, but have a much smaller number of steps before the morning spike of `r as.integer(maxWeekendIntervalSteps)` steps (actually, there are two spikes).  
+- The maximum interval steps is lower on weekends by close to `r round(maxWeekdayIntervalSteps -  maxWeekendIntervalSteps)`  steps.  
+- The number of steps has slightly more variance on the weekends: `r as.integer(var(weekendStepsByInterval))` vs. `r as.integer(var(weekdayStepsByInterval))`.
+- More steps are taken on weekends: `r as.integer(sum(weekendStepsByInterval))` vs. `r as.integer(sum(weekdayStepsByInterval))`.
+- Average steps per interval is also higher on weekends: `r as.integer(mean(weekendStepsByInterval))` vs. `r as.integer(mean(weekdayStepsByInterval))`.
 
 
 ---
 
-### Date
+# Appendix A :: Exploratory Data Analysis
+
+## Date
 
 Let's factorize date and look at that again:
 
@@ -207,7 +325,7 @@ There we go!  Now we see the Date range from Oct 1st through Nov 30th.
 
 ---
 
-### Interval
+## Interval
 
 Let's look at interval now:
 
